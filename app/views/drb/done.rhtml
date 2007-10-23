@@ -1,0 +1,11 @@
+<h2>Drb Worker Task Completed.</h2>
+
+<p>Status : <%= @status %></p>
+<p>Response : <%= @response_status %></p>
+
+<dl>
+<% @response_obj.each do |key, val|  %>
+    <%= "<dt>#{key}</dt><dd>#{val}</dd>"%>
+<% end %>
+</dl>
+<a href='/drb'>back to try again!</a>
