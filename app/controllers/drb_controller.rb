@@ -5,9 +5,10 @@ class DrbController < ApplicationController
  
   def start
     if request.xhr?
+      @remote_url  = params[:task][:url]
       session[:job_key] = 
         ::MiddleMan.new_worker(:class => :http_worker,
-                               :args => {:text => 'this text has been sent to the worker.'})
+                               :args => {:text => 'this text has been sent to the worker.', :remote_url => @remote_url })
       render :update do |page|
         page.replace_html 'form', :partial => 'poll'
       end  

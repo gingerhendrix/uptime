@@ -3,12 +3,13 @@ require "net/http"
 class HttpWorker < BackgrounDRb::Rails
 
   attr_accessor :text
+  attr_accessor :remote_url
   
   def do_work(args)
     results[:progress] = 0
     results[:status] = "Request Received"
-    @text = args[:text]
-    response = Net::HTTP.get_response('www.google.com', '/index.html')
+    @remote_url = URI.parse(args[:remote_url]);
+    response = Net::HTTP.get_response(@remote_url)
     results[:progress] = 100
     results[:response] = response
     results[:response_status] = response.code

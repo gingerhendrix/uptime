@@ -8,11 +8,17 @@
 </head>
 <body>	
 <div id='form'>
+<%= form_remote_tag  :url => { :action => "start" } %>
+    <%= text_field :task, :url %>
+    <%= submit_tag "Start" %>
+<% end_form_tag %>
 </div>
-<dev id='updater'>
+
+<div id='updater'>
 </div>		
-<%= link_to_remote "Start Drb Task with Progres Bar", :url => { :action => "start" }%>
+
 <div id='progressbar' class="progress"></div>
 <span id="status"></span>
+
 </body>
 </html>
