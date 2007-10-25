@@ -14,8 +14,8 @@ describe SitesController, "#route_for" do
     route_for(:controller => "sites", :action => "show", :id => 1).should == "/sites/1"
   end
   
-  it "should map { :controller => 'sites', :action => 'edit', :id => 1 } to /sites/1;edit" do
-    route_for(:controller => "sites", :action => "edit", :id => 1).should == "/sites/1;edit"
+  it "should map { :controller => 'sites', :action => 'edit', :id => 1 } to /sites/1/edit" do
+    route_for(:controller => "sites", :action => "edit", :id => 1).should == "/sites/1/edit"
   end
   
   it "should map { :controller => 'sites', :action => 'update', :id => 1} to /sites/1" do

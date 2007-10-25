@@ -1,7 +1,7 @@
 # Read about fixtures at http://ar.rubyonrails.org/classes/Fixtures.html
-one:
+google:
   id: 1
-  url: MyString
-two:
+  url: http://www.google.com
+gandrew:
   id: 2
-  url: MyString
+  url: http://www.gandrew.com
