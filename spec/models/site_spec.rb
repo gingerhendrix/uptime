@@ -18,6 +18,19 @@ describe Site, "with fixtures loaded" do
   
 end
 
+describe Site, "with user" do
+  fixtures :users
+  before(:each) do
+    @site = Site.new
+    @site.url = "http://www.example.com"
+    @site.user = users(:quentin)
+  end
+
+  it "should be valid" do
+    @site.should be_valid
+  end  
+end
+
 describe Site, "with no url" do
   before(:each) do
     @site = Site.new

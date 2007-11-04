@@ -1,5 +1,19 @@
 require File.dirname(__FILE__) + '/../spec_helper'
 
+module SitesControllerSpecHelper
+ 
+  def mock_sites_and_user
+    @site = mock_model(Site)
+    @sites = [@site]
+    
+    @user = mock_model(User)
+    @user.stub!(:find_sites).and_return(@sites)
+  
+    controller.stub!(:current_user).and_return(@user)
+  end
+  
+end
+
 describe SitesController, "#route_for" do
 
   it "should map { :controller => 'sites', :action => 'index' } to /sites" do
@@ -28,11 +42,44 @@ describe SitesController, "#route_for" do
   
 end
 
-describe SitesController, "handling GET /sites" do
+describe "AuthenticatedAction", :shared => true do
+  def do_action
+    if self.respond_to?(:do_get, true)
+      do_get
+    elsif self.respond_to?(:do_post, true)
+      do_post
+    elsif self.respond_to?(:do_put, true)
+      do_put
+    elsif self.respond_to?(:do_delete, true)
+      do_delete
+    end
+  end
+  
+  it "should authenticate user" do
+    controller.should_receive(:current_user).at_least(:once).and_return(@user)
+    do_action
+  end
+  
+  it "should fail if no user is logged in" do
+    controller.stub!(:current_user).and_return(:false)
+    do_action
+    response.should_not be_success
+  end
+end
 
+describe "AuthorizedAction", :shared => true do
+  it "should fail if the current user is not authorized" do
+    pending("Not yet written")
+    do_get
+  end
+end
+
+describe SitesController, "handling GET /sites" do
+  include SitesControllerSpecHelper
+  it_should_behave_like "AuthenticatedAction"
+  
   before do
-    @site = mock_model(Site)
-    Site.stub!(:find).and_return([@site])
+    mock_sites_and_user
   end
   
   def do_get
@@ -43,14 +90,14 @@ describe SitesController, "handling GET /sites" do
     do_get
     response.should be_success
   end
-
+  
   it "should render index template" do
     do_get
     response.should render_template('index')
   end
   
-  it "should find all sites" do
-    Site.should_receive(:find).with(:all).and_return([@site])
+  it "should find all the users sites" do
+    @user.should_receive(:find_sites).with(:all).and_return([@site])
     do_get
   end
   
@@ -61,10 +108,13 @@ describe SitesController, "handling GET /sites" do
 end
 
 describe SitesController, "handling GET /sites.xml" do
-
+  include SitesControllerSpecHelper
+  
+  it_should_behave_like "AuthenticatedAction"
+  
   before do
-    @site = mock_model(Site, :to_xml => "XML")
-    Site.stub!(:find).and_return(@site)
+    mock_sites_and_user
+    @site.stub!(:to_xml).and_return("XML")
   end
   
   def do_get
@@ -77,22 +127,26 @@ describe SitesController, "handling GET /sites.xml" do
     response.should be_success
   end
 
-  it "should find all sites" do
-    Site.should_receive(:find).with(:all).and_return([@site])
+  it "should find all user's sites" do
+    @user.should_receive(:find_sites).with(:all).and_return([@site])
     do_get
   end
   
   it "should render the found sites as xml" do
-    @site.should_receive(:to_xml).and_return("XML")
+    @sites.should_receive(:to_xml).and_return("XML")
     do_get
     response.body.should == "XML"
   end
 end
 
 describe SitesController, "handling GET /sites/1" do
-
+  include SitesControllerSpecHelper
+  
+  it_should_behave_like "AuthenticatedAction"
+  it_should_behave_like "AuthorizedAction"
+  
   before do
-    @site = mock_model(Site)
+    mock_sites_and_user
     Site.stub!(:find).and_return(@site)
   end
   
@@ -110,6 +164,7 @@ describe SitesController, "handling GET /sites/1" do
     response.should render_template('show')
   end
   
+  
   it "should find the site requested" do
     Site.should_receive(:find).with("1").and_return(@site)
     do_get
@@ -119,13 +174,19 @@ describe SitesController, "handling GET /sites/1" do
     do_get
     assigns[:site].should equal(@site)
   end
+  
 end
 
 describe SitesController, "handling GET /sites/1.xml" do
-
+  include SitesControllerSpecHelper
+  
+  it_should_behave_like "AuthenticatedAction"
+  it_should_behave_like "AuthorizedAction"
+  
   before do
-    @site = mock_model(Site, :to_xml => "XML")
+    mock_sites_and_user
     Site.stub!(:find).and_return(@site)
+    @site.stub!(:to_xml).and_return("XML")
   end
   
   def do_get
@@ -151,9 +212,12 @@ describe SitesController, "handling GET /sites/1.xml" do
 end
 
 describe SitesController, "handling GET /sites/new" do
-
+  include SitesControllerSpecHelper
+  
+  it_should_behave_like "AuthenticatedAction"
+  
   before do
-    @site = mock_model(Site)
+    mock_sites_and_user
     Site.stub!(:new).and_return(@site)
   end
   
@@ -180,17 +244,22 @@ describe SitesController, "handling GET /sites/new" do
     @site.should_not_receive(:save)
     do_get
   end
-  
+    
   it "should assign the new site for the view" do
     do_get
     assigns[:site].should equal(@site)
   end
+  
 end
 
 describe SitesController, "handling GET /sites/1/edit" do
-
+  include SitesControllerSpecHelper
+  
+  it_should_behave_like "AuthenticatedAction"
+  it_should_behave_like "AuthorizedAction"
+  
   before do
-    @site = mock_model(Site)
+    mock_sites_and_user
     Site.stub!(:find).and_return(@site)
   end
   
@@ -207,7 +276,7 @@ describe SitesController, "handling GET /sites/1/edit" do
     do_get
     response.should render_template('edit')
   end
-  
+    
   it "should find the site requested" do
     Site.should_receive(:find).and_return(@site)
     do_get
@@ -220,17 +289,29 @@ describe SitesController, "handling GET /sites/1/edit" do
 end
 
 describe SitesController, "handling POST /sites" do
-
+  include SitesControllerSpecHelper
+  
+  it_should_behave_like "AuthenticatedAction"
+  it_should_behave_like "AuthorizedAction"
+  
+  
+  
   before do
-    @site = mock_model(Site, :to_param => "1")
+    mock_sites_and_user
+    @site.stub!(:to_param).and_return("1")
     Site.stub!(:new).and_return(@site)
+  end
+  
+  def do_post
+    @site.stub!(:save).and_return(true)
+    post :create, :site => {}
   end
   
   def post_with_successful_save
     @site.should_receive(:save).and_return(true)
     post :create, :site => {}
   end
-  
+   
   def post_with_failed_save
     @site.should_receive(:save).and_return(false)
     post :create, :site => {}
@@ -253,10 +334,20 @@ describe SitesController, "handling POST /sites" do
 end
 
 describe SitesController, "handling PUT /sites/1" do
-
+  include SitesControllerSpecHelper
+  
+  it_should_behave_like "AuthenticatedAction"
+  it_should_behave_like "AuthorizedAction"
+  
   before do
-    @site = mock_model(Site, :to_param => "1")
+    mock_sites_and_user
+    @site.stub!(:to_param).and_return("1")
     Site.stub!(:find).and_return(@site)
+  end
+  
+  def do_put
+    @site.stub!(:update_attributes).and_return(true)
+    put :update, :id => "1"
   end
   
   def put_with_successful_update
@@ -296,9 +387,14 @@ describe SitesController, "handling PUT /sites/1" do
 end
 
 describe SitesController, "handling DELETE /sites/1" do
-
+  include SitesControllerSpecHelper
+  
+  it_should_behave_like "AuthenticatedAction"
+  it_should_behave_like "AuthorizedAction"
+  
   before do
-    @site = mock_model(Site, :destroy => true)
+    mock_sites_and_user
+    @site.stub!(:destroy).and_return(true)
     Site.stub!(:find).and_return(@site)
   end
   

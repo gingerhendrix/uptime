@@ -2,6 +2,8 @@
 google:
   id: 1
   url: http://www.google.com
+  user_id: 1
 gandrew:
   id: 2
   url: http://www.gandrew.com
+  user_id: 1

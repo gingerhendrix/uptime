@@ -1,8 +1,11 @@
 class SitesController < ApplicationController
+  before_filter :login_required
+  
   # GET /sites
   # GET /sites.xml
   def index
-    @sites = Site.find(:all)
+    @user = self.current_user
+    @sites = @user.find_sites(:all)
 
     respond_to do |format|
       format.html # index.rhtml

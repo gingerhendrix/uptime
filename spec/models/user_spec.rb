@@ -36,6 +36,11 @@ context "A new User" do
     }.should_not change(User,:count)
   end
   
+  specify "should have an empty set of sites" do
+    u = create_user
+    u.find_sites(:all).should eql([]) 
+  end
+  
   protected
   
   def create_user(options = {})
@@ -48,6 +53,7 @@ end
 
 context "User with fixtures loaded" do
   fixtures :users
+  fixtures :sites
 
   specify "should reset password" do
     users(:quentin).update_attributes(:password => 'new password', :password_confirmation => 'new password')
@@ -101,5 +107,9 @@ context "User with fixtures loaded" do
     users(:quentin).remember_token.should_not be_nil
     users(:quentin).remember_token_expires_at.should_not be_nil
     users(:quentin).remember_token_expires_at.should be_between(before, after)
+  end
+  
+  specify "should have two sites" do
+    users(:quentin).find_sites(:all).should eql([sites(:google), sites(:gandrew)])
   end
 end
