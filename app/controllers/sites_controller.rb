@@ -89,6 +89,21 @@ class SitesController < ApplicationController
     end
   end
   
+  # POST /sites/1/ping
+  # POST /sites/1/ping.xml
+  def ping
+    @site = Site.find(params[:id])
+    return if !self.authorize?
+    
+    @site.ping!
+    
+    respond_to do |format|
+      format.html { redirect_to sites_url }
+      format.xml  { head :ok }
+    end
+    
+  end
+  
   protected
   
   def authorize?

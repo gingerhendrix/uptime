@@ -55,6 +55,10 @@ describe SitesController, "#route_for" do
     route_for(:controller => "sites", :action => "destroy", :id => 1).should == "/sites/1"
   end
   
+  it "should map { :controller => 'sites', :action => 'ping', :id => 1} to /sites/1/ping" do
+    route_for(:controller => "sites", :action => "ping", :id => 1).should == "/sites/1/ping"
+  end
+  
 end
 
 describe "AuthenticatedAction", :shared => true do
@@ -332,7 +336,7 @@ describe SitesController, "handling POST /sites" do
   
   it "should link the site with the current user" do
     controller.stub!(:current_user).and_return(@user)
-    Site.should_receive(:user=).with(@user)
+    @site.should_receive(:user=).with(@user)
     post_with_successful_save
   end
 
@@ -432,3 +436,36 @@ describe SitesController, "handling DELETE /sites/1" do
   end
 end
 
+describe SitesController, "handling POST sites/1/ping" do
+  include SitesControllerSpecHelper
+  
+  it_should_behave_like "AuthenticatedAction"
+  it_should_behave_like "AuthorizedAction"
+
+  before do
+    mock_sites_and_user
+    Site.stub!(:find).and_return(@site)
+    @ping = mock_model(Ping)
+    @site.stub!(:ping!).and_return(@ping)
+  end
+  
+  def do_post
+    post :ping, :id => "1"
+  end
+  
+  it "should find the site requested" do
+    Site.should_receive(:find).with("1").and_return(@site)
+    do_post
+  end
+  
+  it "should call ping on the site requested" do
+    @site.should_receive(:ping!).and_return(@ping)
+    do_post
+  end
+  
+  it "should redirect to the sites list" do
+    do_post
+    response.should redirect_to(sites_url)
+  end
+  
+end
