@@ -29,6 +29,14 @@ describe Site, "with user" do
   it "should be valid" do
     @site.should be_valid
   end  
+  
+  it "should authorize owner" do
+    @site.authorize?(users(:quentin)).should be(true)
+  end
+  
+  it "should not authorize non owner" do
+    @site.authorize?(users(:aaron)).should be(false)
+  end
 end
 
 describe Site, "with no url" do

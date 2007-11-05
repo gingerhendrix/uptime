@@ -5,11 +5,26 @@ module SitesControllerSpecHelper
   def mock_sites_and_user
     @site = mock_model(Site)
     @sites = [@site]
+    @site.stub!(:authorize?).and_return(true)
+    @site.stub!(:user=).and_return(true)
     
     @user = mock_model(User)
+    
     @user.stub!(:find_sites).and_return(@sites)
   
     controller.stub!(:current_user).and_return(@user)
+  end
+  
+  def do_action
+    if self.respond_to?(:do_get, true)
+      do_get
+    elsif self.respond_to?(:do_post, true)
+      do_post
+    elsif self.respond_to?(:do_put, true)
+      do_put
+    elsif self.respond_to?(:do_delete, true)
+      do_delete
+    end
   end
   
 end
@@ -43,17 +58,6 @@ describe SitesController, "#route_for" do
 end
 
 describe "AuthenticatedAction", :shared => true do
-  def do_action
-    if self.respond_to?(:do_get, true)
-      do_get
-    elsif self.respond_to?(:do_post, true)
-      do_post
-    elsif self.respond_to?(:do_put, true)
-      do_put
-    elsif self.respond_to?(:do_delete, true)
-      do_delete
-    end
-  end
   
   it "should authenticate user" do
     controller.should_receive(:current_user).at_least(:once).and_return(@user)
@@ -68,9 +72,16 @@ describe "AuthenticatedAction", :shared => true do
 end
 
 describe "AuthorizedAction", :shared => true do
+
+  it "should authorize user" do
+    @site.should_receive(:authorize?).with(@user).and_return(true)
+    do_action
+  end
+
   it "should fail if the current user is not authorized" do
-    pending("Not yet written")
-    do_get
+    @site.stub!(:authorize?).and_return(false)
+    do_action
+    response.should_not be_success
   end
 end
 
@@ -292,9 +303,6 @@ describe SitesController, "handling POST /sites" do
   include SitesControllerSpecHelper
   
   it_should_behave_like "AuthenticatedAction"
-  it_should_behave_like "AuthorizedAction"
-  
-  
   
   before do
     mock_sites_and_user
@@ -319,6 +327,12 @@ describe SitesController, "handling POST /sites" do
   
   it "should create a new site" do
     Site.should_receive(:new).with({}).and_return(@site)
+    post_with_successful_save
+  end
+  
+  it "should link the site with the current user" do
+    controller.stub!(:current_user).and_return(@user)
+    Site.should_receive(:user=).with(@user)
     post_with_successful_save
   end
 
@@ -417,3 +431,4 @@ describe SitesController, "handling DELETE /sites/1" do
     response.should redirect_to(sites_url)
   end
 end
+

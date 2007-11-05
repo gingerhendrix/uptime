@@ -17,10 +17,12 @@ class SitesController < ApplicationController
   # GET /sites/1.xml
   def show
     @site = Site.find(params[:id])
-
+    
+    return if !self.authorize?
+    
     respond_to do |format|
-      format.html # show.rhtml
-      format.xml  { render :xml => @site.to_xml }
+        format.html # show.rhtml
+        format.xml  { render :xml => @site.to_xml }
     end
   end
 
@@ -32,13 +34,15 @@ class SitesController < ApplicationController
   # GET /sites/1;edit
   def edit
     @site = Site.find(params[:id])
+    return if !self.authorize?
   end
 
   # POST /sites
   # POST /sites.xml
   def create
     @site = Site.new(params[:site])
-
+    @site.user = self.current_user    
+    
     respond_to do |format|
       if @site.save
         flash[:notice] = 'Site was successfully created.'
@@ -55,7 +59,9 @@ class SitesController < ApplicationController
   # PUT /sites/1.xml
   def update
     @site = Site.find(params[:id])
-
+    
+    return if !self.authorize?
+    
     respond_to do |format|
       if @site.update_attributes(params[:site])
         flash[:notice] = 'Site was successfully updated.'
@@ -72,11 +78,24 @@ class SitesController < ApplicationController
   # DELETE /sites/1.xml
   def destroy
     @site = Site.find(params[:id])
+    
+    return if !self.authorize?
+    
     @site.destroy
-
+    
     respond_to do |format|
       format.html { redirect_to sites_url }
       format.xml  { head :ok }
     end
+  end
+  
+  protected
+  
+  def authorize?
+    if ! @site.authorize?(self.current_user)
+      render :text => "You are not authorized to access thise resource", :status => :forbidden
+      return false
+    end
+    return true
   end
 end

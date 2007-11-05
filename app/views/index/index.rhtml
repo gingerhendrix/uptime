@@ -3,6 +3,16 @@
         <title>Uptime</title>
     </head>
     <body>
+    <div id="notice"><%= flash[:notice] %></div>
+    
+    <% if @user = current_user %>
+        <a href="/sites"><%= @user.login %></a>
+    <% end %>
+    
+    <a href="/sessions/new">Log-in</a>
+    <a href="/users/new">Register</a>
+    
+    
     
     
     </body>
