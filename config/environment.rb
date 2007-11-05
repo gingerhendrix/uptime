@@ -56,3 +56,5 @@ end
 # Include your application configuration below
 ActiveRecord::Base.send(:include, DemetersRevenge::HasManyExtensions)
 ActiveRecord::Base.send(:include, DemetersRevenge::HasAndBelongsToManyExtensions)
+
+ActiveRecord::Base.default_timezone = :utc

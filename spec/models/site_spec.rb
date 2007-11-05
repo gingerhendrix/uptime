@@ -59,3 +59,20 @@ describe Site, "with url" do
     @site.should be_valid
   end
 end
+
+
+describe Site, "ping" do
+  before(:each) do
+    @site = Site.new
+    @site.url = "http://www.example.com"
+    @site.user = users(:quentin)
+    @response = mock("response")
+  end
+  
+  it "should call http open"
+    pending("Not written yet")
+    Net::HTTP.should_receive(:get_response).with(@site.url).and_return(@response)
+    @site.ping
+  end
+  
+end
