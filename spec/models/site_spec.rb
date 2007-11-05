@@ -1,5 +1,7 @@
 require File.dirname(__FILE__) + '/../spec_helper'
 
+require "net/http"
+
 describe Site, "with fixtures loaded" do
   fixtures :sites
   
@@ -39,40 +41,65 @@ describe Site, "with user" do
   end
 end
 
-describe Site, "with no url" do
-  before(:each) do
-    @site = Site.new
-  end
-
-  it "should not be valid" do
-    @site.should_not be_valid
-  end
-end
-
-describe Site, "with url" do
+describe Site do
   before(:each) do
     @site = Site.new
     @site.url = "http://www.example.com"
   end
-
+  
   it "should be valid" do
     @site.should be_valid
   end
-end
+  
+  it "should not be valid without url" do
+    @site.url = nil
+    @site.should_not be_valid
+  end
+  
+  it "should build a ping with the site set" do
+    @site.save!
+    @site.build_ping.site.id.should be(@site.id)
+  end
 
+end
 
 describe Site, "ping" do
   before(:each) do
     @site = Site.new
     @site.url = "http://www.example.com"
-    @site.user = users(:quentin)
-    @response = mock("response")
+    
+    @ping = Ping.new 
+    @ping.site = @site
+    @ping.response_code = 666
+    @ping.response_text = "Stub!"
+    @ping.response_time = 10101
+    @site.stub!(:build_ping).and_return(@ping)
+    
+    @response = {:code => "200", :message => "OK"}
+    
+    @response.stub!(:message).and_return("OK")
+    Net::HTTP.stub!(:get_response).and_return(@response)
   end
   
-  it "should call http open"
-    pending("Not written yet")
+  it "should call http open" do
     Net::HTTP.should_receive(:get_response).with(@site.url).and_return(@response)
-    @site.ping
+    @site.ping!
   end
+  
+  it "should time the response and save it in model" do
+    time = Time.now
+    Time.should_receive(:now).at_least(:twice).and_return(time, time+5)
+    ping = @site.ping!
+    @ping.response_time.should eql(5)
+  end
+  
+  it "should save the response code and response message" do
+    @response.should_receive(:[]).with(:code).and_return(200);
+    @response.should_receive(:[]).with(:message).and_return("OK");
+    ping = @site.ping!
+    @ping.response_code.should eql(200)
+    @ping.response_text.should eql("OK")
+  end
+  
   
 end
