@@ -1,0 +1,97 @@
+
+body{
+    background-image: url(/images/bg-grid.gif);
+   /* background-image: url(/images/design-grid.gif);*/
+    margin: 10px;
+    color: #333;
+}
+
+#hd{
+    padding-left: 5px;
+    margin-bottom: 20px;
+}
+
+#bd{
+    width: 608px;
+    float: left;
+    background-image: url(/images/80pc-white.png);
+    min-height: 500px;
+    border: 1px solid #666;
+    font-family: arial, helvetica, sans-serif;
+    line-height: 1.4;
+    padding-right: 10px;
+}
+
+#notice{
+    margin-left: 10px;
+    margin-top: 10px;
+    padding-left: 2px;
+    background-color: #ffd100;
+}
+
+#bd h2{
+   margin-left: 10px;
+   float: left;
+   margin-top: 20px;
+}
+
+
+#bd p{
+   margin-left: 105px;
+}
+
+#bd dd{
+    margin-left: 105px;
+    margin-bottom: 20px;
+}
+
+#bd dl{
+    margin-top: 30px;
+}
+#bd dt{
+    font-family: "Times New Roman", times, serif;
+    font-weight: bold;
+    margin-left: 105px;
+    margin-bottom: 10px;
+}
+
+#userpanel{
+    float: left;
+    width: 198px;
+    min-height: 200px;
+    border: 1px solid #666;
+    background-image: url(/images/80pc-white.png);
+    font-family: arial, helvetica, sans-serif;
+    margin-left: 10px;
+    padding-bottom: 20px;
+}
+
+#userpanel h2{
+    font-size: 16pt;
+    font-weight: bold;
+    margin-top: 10px;
+    margin-left: 10px;
+}
+
+#userpanel li{
+    list-style-type: none;
+    line-height: 1.6;
+}
+
+#userpanel ul{
+    padding-left: 20px;
+}
+
+#userpanel a{
+    color: inherit;
+    text-decoration: underline;
+}
+
+#userpanel .loginform{
+    padding-left: 20px;
+}
+
+
+#userpanel .registration{
+    padding-left: 20px;
+}
