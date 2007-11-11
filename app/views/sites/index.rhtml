@@ -1,5 +1,11 @@
-<h1>Listing sites</h1>
+<div id="bd">
 
+<h2>Sites</h2>
+<script>
+function statusUpdate(status){
+  document.getElementById("status").innerHTML = "Status: " +  status;
+}
+</script>
 <table>
   <tr>
     <th>Url</th>
@@ -8,9 +14,18 @@
 <% for site in @sites %>
   <tr>
     <td><%=h site.url %></td>
+    <td>
+        <div id='form'>
+        <%= form_remote_tag  :url => {:controller => :sites, :action => :ping, :id => site.id } %>
+            <%= submit_tag "Ping" %>
+        <% end_form_tag %>
+        </div>
+    </td>
     <td><%= link_to 'Show', site_path(site) %></td>
     <td><%= link_to 'Edit', edit_site_path(site) %></td>
     <td><%= link_to 'Destroy', site_path(site), :confirm => 'Are you sure?', :method => :delete %></td>
+    <td><%= link_to 'Destroy', site_path(site), :confirm => 'Are you sure?', :method => :delete %></td>
+    
   </tr>
 <% end %>
 </table>
@@ -18,3 +33,13 @@
 <br />
 
 <%= link_to 'New site', new_site_path %>
+
+</div>
+<% @user = current_user %>
+<div id="userpanel">
+        <h2 class="username"><%= @user.login %></h2>
+        <ul>
+            <li><a href="/sites" class="sites">My Sites</a></li> 
+            <li><%= link_to "Logout", session_path(1), :method => :delete %></li>
+        </ul>
+</div>

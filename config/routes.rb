@@ -1,4 +1,6 @@
 ActionController::Routing::Routes.draw do |map|
+  map.connect 'sites/ping_poll', :controller => 'sites', :action => 'ping_poll'
+  
   map.resources :sites
   map.resources :users
   map.resources :sessions
@@ -21,6 +23,7 @@ ActionController::Routing::Routes.draw do |map|
   # map.connect ':controller/service.wsdl', :action => 'wsdl'
   
   map.connect 'sites/:id/ping', :controller => 'sites', :action => 'ping'
+  
 
   map.connect '', :controller => 'index', :action => 'index'
 

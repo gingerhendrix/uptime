@@ -11,10 +11,11 @@ class Site < ActiveRecord::Base
   def ping!
     ping = self.build_ping
     time = Time.now
-    response = Net::HTTP.get_response(self.url)
+    response = Net::HTTP.get_response(URI.parse(self.url))
     ping.response_time = Time.now - time
-    ping.response_code = response[:code]
-    ping.response_text = response[:message]
+    ping.response_code = response.code
+    ping.response_text = response.message
     ping.save!
+    return ping
   end
 end

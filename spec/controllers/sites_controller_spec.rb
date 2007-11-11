@@ -15,6 +15,10 @@ module SitesControllerSpecHelper
     controller.stub!(:current_user).and_return(@user)
   end
   
+  def mock_pings
+    
+  end
+  
   def do_action
     if self.respond_to?(:do_get, true)
       do_get
@@ -162,6 +166,7 @@ describe SitesController, "handling GET /sites/1" do
   
   before do
     mock_sites_and_user
+    mock_pings
     Site.stub!(:find).and_return(@site)
   end
   
@@ -179,9 +184,8 @@ describe SitesController, "handling GET /sites/1" do
     response.should render_template('show')
   end
   
-  
   it "should find the site requested" do
-    Site.should_receive(:find).with("1").and_return(@site)
+    Site.should_receive(:find).with("1", :anything).and_return(@site)
     do_get
   end
   
@@ -215,7 +219,7 @@ describe SitesController, "handling GET /sites/1.xml" do
   end
   
   it "should find the site requested" do
-    Site.should_receive(:find).with("1").and_return(@site)
+    Site.should_receive(:find).with("1", :anything).and_return(@site)
     do_get
   end
   

@@ -64,25 +64,39 @@ describe Site do
 end
 
 describe Site, "ping" do
+  fixtures :sites
+  
   before(:each) do
-    @site = Site.new
-    @site.url = "http://www.example.com"
-    
-    @ping = Ping.new 
-    @ping.site = @site
-    @ping.response_code = 666
-    @ping.response_text = "Stub!"
-    @ping.response_time = 10101
-    @site.stub!(:build_ping).and_return(@ping)
+    @site = sites(:google)
     
     @response = {:code => "200", :message => "OK"}
-    
     @response.stub!(:message).and_return("OK")
+    @response.stub!(:code).and_return(200)
     Net::HTTP.stub!(:get_response).and_return(@response)
   end
   
-  it "should call http open" do
-    Net::HTTP.should_receive(:get_response).with(@site.url).and_return(@response)
+  it "should return a value" do
+    ping = @site.ping!
+    ping.should_not be(nil)
+  end
+  
+  it "should return a Ping" do
+    ping = @site.ping!
+    ping.should be_an_instance_of(Ping)
+  end
+  
+  it "should return a Ping which is saved" do
+    ping = @site.ping!
+    ping.new_record?.should be(false)
+  end
+  
+  it "should return a Ping which is valid" do
+    ping = @site.ping!
+    ping.valid?.should be(true)
+  end
+  
+  it "should call http open" do #required only so that we know stubbing is working for other tests
+    Net::HTTP.should_receive(:get_response).with(URI.parse(@site.url)).and_return(@response)
     @site.ping!
   end
   
@@ -90,15 +104,15 @@ describe Site, "ping" do
     time = Time.now
     Time.should_receive(:now).at_least(:twice).and_return(time, time+5)
     ping = @site.ping!
-    @ping.response_time.should eql(5)
+    ping.response_time.should eql(5)
   end
   
   it "should save the response code and response message" do
-    @response.should_receive(:[]).with(:code).and_return(200);
-    @response.should_receive(:[]).with(:message).and_return("OK");
+    @response.should_receive(:code).and_return(200);
+    @response.should_receive(:message).and_return("OK");
     ping = @site.ping!
-    @ping.response_code.should eql(200)
-    @ping.response_text.should eql("OK")
+    ping.response_code.should eql(200)
+    ping.response_text.should eql("OK")
   end
   
   
