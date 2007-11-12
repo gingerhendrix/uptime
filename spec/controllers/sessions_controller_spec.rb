@@ -25,23 +25,23 @@ context "The Sessions controller" do
     controller.should be_an_instance_of(SessionsController)
   end
 
-  specify "should redirect to / after successful login" do   
+  specify "should redirect to /sites after successful login" do   
     post :create, :login => 'quentin', :password => 'test'
-    response.should redirect_to('http://test.host/')
-    should_be_logged_in
+    response.should redirect_to('/sites')
+    _should_be_logged_in
   end
 
   specify "should redirect back after successful login" do
     session[:return_to] = "/sessions/back"
     post :create, :login => 'quentin', :password => 'test'
-    response.should redirect_to('http://test.host/sessions/back')
-    should_be_logged_in
+    response.should redirect_to('/sessions/back')
+    _should_be_logged_in
   end
 
   specify "should not redirect after failed login" do
     post :create, :login => 'quentin', :password => 'bad password'
     response.should be_success
-    should_not_be_logged_in
+    _should_not_be_logged_in
   end
 
   specify "should remember me" do
@@ -58,7 +58,7 @@ context "The Sessions controller" do
     login_as :quentin
     get :destroy
     response.cookies["auth_token"].should be_empty
-    should_not_be_logged_in
+    _should_not_be_logged_in
   end
 
   specify "should login with cookie" do
@@ -66,7 +66,7 @@ context "The Sessions controller" do
       users(:quentin).remember_me
       request.cookies["auth_token"] = cookie_for(:quentin)
       get :new
-      should_be_logged_in
+      _should_be_logged_in
     end
   end
 
@@ -75,14 +75,14 @@ context "The Sessions controller" do
     users(:quentin).update_attribute :remember_token_expires_at, 15.minutes.ago
     request.cookies["auth_token"] = cookie_for(:quentin)
     get :new
-    should_not_be_logged_in
+    _should_not_be_logged_in
   end
 
   specify "should fail to login with invalid cookie" do
       users(:quentin).remember_me
       request.cookies["auth_token"] = auth_token('invalid_auth_token')
       get :new
-      should_not_be_logged_in
+      _should_not_be_logged_in
    end
 
   protected
@@ -100,14 +100,14 @@ context "The Sessions controller" do
     auth_token users(user).remember_token
   end
 
-  def should_be_logged_in
-    response.session.should_not be_nil
-    response.session[:user].should_not be_nil
+  def _should_be_logged_in
+    session.should_not be_nil
+    session[:user].should_not be_nil
   end
 
-  def should_not_be_logged_in
-    response.session.should_not be_nil
-    response.session[:user].should be_nil
+  def _should_not_be_logged_in
+    session.should_not be_nil
+    session[:user].should be_nil
   end
 
 end
